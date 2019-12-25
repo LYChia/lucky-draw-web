@@ -148,28 +148,31 @@ export default function Questionaire(props) {
   let { formConfig } = global;
   let { saveResult, formResult, mode } = props;
 
-  const updateAnswer = (key, _answer) => {
-    formResult[key] = _answer;
-    saveResult(formResult);
-  };
-
-  //outer invoke function
   const isComplete = () => {
     let completeFlag = true;
-    let message = [];
+    let message = ['尚未填寫'];
 
     _.forEach(questionaire, (_question, _key) => {
       if (_question.required) {
         if (_.isEmpty(formResult[_key])) {
           completeFlag = false;
-          message.push(`尚未填寫${_key}`);
+          message.push(_key);
         }
       }
     });
 
     return { completeFlag, message };
   };
-  console.log(isComplete);
+
+  const updateAnswer = (key, _answer) => {
+    formResult[key] = _answer;
+
+    let { completeFlag, message } = isComplete();
+    formResult.step1IsComplete = completeFlag;
+    formResult.step1Message = message;
+
+    saveResult(formResult);
+  };
 
   return (
     <React.Fragment>

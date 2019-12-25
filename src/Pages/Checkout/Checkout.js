@@ -17,9 +17,6 @@ import Step3 from "./Step3";
 import prizeConfig from "../../config/prizeConfig.json";
 import Dialog from "../../module/Dialog";
 
-
-let refs = {};
-
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -77,7 +74,6 @@ function getStepContent(step, saveResult, formResult) {
         <Step1
           saveResult={saveResult}
           formResult={formResult}
-          ref={_ref => (refs[`step${step}`] = _ref)}
         />
       );
     case 1:
@@ -85,7 +81,6 @@ function getStepContent(step, saveResult, formResult) {
         <Step2
           saveResult={saveResult}
           formResult={formResult}
-          ref={_ref => (refs[`step${step}`] = _ref)}
         />
       );
     case 2:
@@ -93,7 +88,6 @@ function getStepContent(step, saveResult, formResult) {
         <Step3
           saveResult={saveResult}
           formResult={formResult}
-          ref={_ref => (refs[`step${step}`] = _ref)}
         />
       );
     default:
@@ -102,7 +96,7 @@ function getStepContent(step, saveResult, formResult) {
 }
 
 export default function Checkout() {
-  refs = React.useRef(null);
+
   let { formConfig } = global;
   let steps = _.reduce(
     formConfig,
@@ -111,9 +105,7 @@ export default function Checkout() {
         result.push(_value);
       }
       return result;
-    },
-    []
-  );
+    }, []);
 
   const classes = useStyles();
 
@@ -121,29 +113,37 @@ export default function Checkout() {
   const [formResult, setFormResult] = React.useState({
     prizes: _.cloneDeep(prizeConfig.prizeList)
   });
-  const [dialogSetting, setDialog] = React.useState({
-    title: "",
-    content: "",
-    open: false
-  });
+
+  let dialogRef = React.useRef();
+  const [dialogSetting, setDialog] = React.useState({ title: "", content: "" });
+
+  const canGoNext = () => {
+    let completeFlag = formResult[`step${activeStep + 1}IsComplete`];
+    let message = formResult[`step${activeStep + 1}Message`] || ["尚未完成"];
+    console.log('completeFlag', completeFlag, 'message', message);
+    if (!completeFlag || !_.isBoolean(completeFlag)) {
+      console.log("Alert", _.join(message, "\n"), "open");
+      setDialog({ title: "Alert", content: _.join(message, "\n") });
+      dialogRef.handleToggle("open");
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   const handleNext = () => {
+
+    console.log('handleNext');
     if (activeStep < 2) {
-      if (canGoNext()) {
+      let goNextFlag = canGoNext();
+      console.log('handleNext', goNextFlag);
+      if (goNextFlag) {
         setActiveStep(activeStep + 1);
       }
     } else {
       setActiveStep(0);
       resetPages();
     }
-  };
-
-  const canGoNext = () => {
-    let { completeFlag, message } = refs[`step${activeStep}`].isComplete;
-    if(!completeFlag){
-      setDialog("Alert", _.join(message, "\n"), "open");
-    }
-    return completeFlag;
   };
 
   // const handleBack = () => {
@@ -168,7 +168,7 @@ export default function Checkout() {
   return (
     <React.Fragment>
       <CssBaseline />
-      <Dialog {...dialogSetting} />
+      <Dialog {...dialogSetting} ref={_ref => dialogRef = _ref} />
       <AppBar position="absolute" color="default" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" color="inherit" noWrap>
@@ -183,7 +183,7 @@ export default function Checkout() {
           </Typography>
           <Stepper activeStep={activeStep} className={classes.stepper}>
             {steps.map(label => (
-              <Step key={label} onClick={() => handleStep(label)}>
+              <Step key={label} /* onClick={() => handleStep(label)} */>
                 <StepLabel>{label}</StepLabel>
               </Step>
             ))}
@@ -200,7 +200,7 @@ export default function Checkout() {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleNext}
+                  onClick={() => handleNext()}
                   className={classes.button}
                 >
                   {activeStep === steps.length - 1 ? "Complete" : "Next"}

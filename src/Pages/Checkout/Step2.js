@@ -96,6 +96,8 @@ export default function LuckyDraw(props) {
 
     formResult.prizes = prizes;
     formResult.getPrize = _getPrize;
+    formResult.step2IsComplete = true;
+
     saveResult(formResult);
   }
 
