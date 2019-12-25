@@ -1,0 +1,41 @@
+{
+    "Q1":{
+        "title":"工號",
+        "type": "textField",
+        "required": true
+    },
+    "Q2":{
+        "title":"2020年採購影片將全面升級為藍光政策, 您是否滿意?(買一片藍光約可以買1.5片DVD)",
+        "type": "radioGroup",
+        "enableOther": true,
+        "options": [
+            "滿意,配合顯示器走向4K 8K, 光碟畫質應配合升級為藍光",
+            "不滿意,覺得DVD畫質已能滿足需求",
+            "不滿意,家中無藍光播放器"
+        ],
+        "required": true
+    },
+    "Q3":{
+        "title":"是否希望金虎社一個月能少買一片電影光碟, 改買一張電影票辦抽獎活動?(一個月原本採購8片DVD)",
+        "type": "radioGroup",
+        "options": [
+            "是",
+            "否"
+        ],
+        "required": true
+    },
+    "Q4":{
+        "title":"是否希望將電影光碟數位化(可用APP在任何裝置觀看)",
+        "type": "radioGroup",
+        "options": [
+            "是",
+            "否"
+        ],
+        "required": true
+    },
+    "Q5":{
+        "title":"其他意見",
+        "type": "textareaAutosize",
+        "required": false
+    }
+}
