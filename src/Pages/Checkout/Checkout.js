@@ -1,20 +1,27 @@
 import _ from "lodash";
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Paper from "@material-ui/core/Paper";
-import Stepper from "@material-ui/core/Stepper";
-import Step from "@material-ui/core/Step";
-import StepLabel from "@material-ui/core/StepLabel";
-import Button from "@material-ui/core/Button";
+import intl from 'react-intl-universal';
+import Box from '@material-ui/core/Box';
 import Link from "@material-ui/core/Link";
+import Step from "@material-ui/core/Step";
+import Paper from "@material-ui/core/Paper";
+import AppBar from "@material-ui/core/AppBar";
+import Button from "@material-ui/core/Button";
+import Select from '@material-ui/core/Select';
+import Stepper from "@material-ui/core/Stepper";
+import Toolbar from "@material-ui/core/Toolbar";
+import MenuItem from '@material-ui/core/MenuItem';
+import StepLabel from "@material-ui/core/StepLabel";
+import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import FormControl from '@material-ui/core/FormControl';
+import TranslateIcon from '@material-ui/icons/Translate';
+
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
-import prizeConfig from "../../config/prizeConfig.json";
+import loadLocales from '../../locales';
 import Dialog from "../../module/Dialog";
 
 function Copyright() {
@@ -22,7 +29,7 @@ function Copyright() {
     <Typography variant="body2" color="textSecondary" align="center">
       {"Copyright © "}
       <Link color="inherit" href={global.serverConfig.clubUrl}>
-        {global.formConfig.copyRight}
+        {intl.get('form.copyRight')}
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -32,14 +39,16 @@ function Copyright() {
 
 const useStyles = makeStyles(theme => ({
   appBar: {
-    position: "relative"
+    position: "relative",
+    maxHeight: "64px",
+    height: "100%"
   },
   layout: {
     width: "auto",
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
     [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
-      width: 600,
+      width: "65%",
       marginLeft: "auto",
       marginRight: "auto"
     }
@@ -64,32 +73,29 @@ const useStyles = makeStyles(theme => ({
   button: {
     marginTop: theme.spacing(3),
     marginLeft: theme.spacing(1)
+  },
+  media: {
+    height: 0,
+    paddingTop: '56.25%', // 16:9
+  },
+  img: {
+    maxHeight: "64px",
+    width: "auto",
+    height: "100%"
+  },
+  selectLang: {
+    marginLeft: 'auto'
   }
 }));
 
-function getStepContent(step, saveResult, formResult) {
+function getStepContent(step) {
   switch (step) {
     case 0:
-      return (
-        <Step1
-          saveResult={saveResult}
-          formResult={formResult}
-        />
-      );
+      return <Step1 />;
     case 1:
-      return (
-        <Step2
-          saveResult={saveResult}
-          formResult={formResult}
-        />
-      );
+      return <Step2 />;
     case 2:
-      return (
-        <Step3
-          saveResult={saveResult}
-          formResult={formResult}
-        />
-      );
+      return <Step3 />;
     default:
       throw new Error("Unknown step");
   }
@@ -97,33 +103,52 @@ function getStepContent(step, saveResult, formResult) {
 
 export default function Checkout() {
 
-  let { formConfig } = global;
-  let steps = _.reduce(
-    formConfig,
-    (result, _value, _key) => {
-      if (_.startsWith(_key, "step")) {
-        result.push(_value);
-      }
-      return result;
-    }, []);
-
   const classes = useStyles();
 
   const [activeStep, setActiveStep] = React.useState(0);
-  const [formResult, setFormResult] = React.useState({
-    prizes: _.cloneDeep(prizeConfig.prizeList)
-  });
+
+  const [context, setContext] = useContext();
+  let { formResult } = context;
+
+  const [steps, setSteps] = React.useState([
+    { step: 1, label: intl.get('form.step1Title') },
+    { step: 2, label: intl.get('form.step2Title') },
+    { step: 3, label: intl.get('form.step3Title') }
+  ]);
 
   let dialogRef = React.useRef();
   const [dialogSetting, setDialog] = React.useState({ title: "", content: "" });
 
+  // componentDidUpdate
+  React.useEffect(() => {
+    loadLocales(context.language);
+
+    setSteps([
+      { step: 1, label: intl.get('form.step1Title') },
+      { step: 2, label: intl.get('form.step2Title') },
+      { step: 3, label: intl.get('form.step3Title') }
+    ]);
+
+    document.title = intl.get('documentTitle');
+  }, [context.language]);
+
+  const saveFormResult = (resultKey, result) => {
+    formResult[resultKey] = result;
+    setContext(prevContext => ({ ...prevContext, formResult }));
+  };
+
+  // componentDidMount
+  React.useEffect(() => {
+    setContext(prevContext => { return { ...prevContext, saveFormResult } });
+  }, []);
+
+
   const canGoNext = () => {
     let completeFlag = formResult[`step${activeStep + 1}IsComplete`];
-    let message = formResult[`step${activeStep + 1}Message`] || ["尚未完成"];
+    let message = _.concat([], formResult[`step${activeStep + 1}Message`], intl.get('alert.plzComple'));
     console.log('completeFlag', completeFlag, 'message', message);
     if (!completeFlag || !_.isBoolean(completeFlag)) {
-      console.log("Alert", _.join(message, "\n"), "open");
-      setDialog({ title: "Alert", content: _.join(message, "\n") });
+      setDialog({ title: intl.get('alert.unfinished'), content: _.join(message, "\n") });
       dialogRef.handleToggle("open");
       return false;
     } else {
@@ -136,7 +161,6 @@ export default function Checkout() {
     console.log('handleNext');
     if (activeStep < 2) {
       let goNextFlag = canGoNext();
-      console.log('handleNext', goNextFlag);
       if (goNextFlag) {
         setActiveStep(activeStep + 1);
       }
@@ -146,57 +170,55 @@ export default function Checkout() {
     }
   };
 
-  // const handleBack = () => {
-  //   setActiveStep(activeStep - 1);
-  // };
-
-  const handleStep = label => {
-    let targetStep = _.findIndex(steps, _step => _step === label);
-    setActiveStep(targetStep);
-  };
-
-  const saveResult = (resultKey, result) => {
-    formResult[resultKey] = result;
-    setFormResult(formResult);
-  };
-
   const resetPages = () => {
-    let initialFormResult = _.assign({}, { prizes: formResult.prizes });
-    setFormResult(initialFormResult);
+    setContext(prevContext => ({ ...prevContext, formResult: {} }));
+  };
+
+  const handleLangChange = (event) => {
+    setContext(prevContext => { return { ...prevContext, language: event.target.value } });
   };
 
   return (
     <React.Fragment>
       <CssBaseline />
       <Dialog {...dialogSetting} ref={_ref => dialogRef = _ref} />
-      <AppBar position="absolute" color="default" className={classes.appBar}>
+      <AppBar position="sticky" color="default" className={classes.appBar}>
         <Toolbar>
-          <Typography variant="h6" color="inherit" noWrap>
-            {formConfig.title}
+          <Box component="span" m={3}>
+            <img src={`${process.env.PUBLIC_URL}/GoldenTiger.jpg`} className={classes.img} />
+          </Box>
+          <Typography variant="h6" color="inherit" noWrap align="center">
+            {intl.get('form.title')}
           </Typography>
+          <div className={classes.selectLang}>
+            <Box component="span" m={2}><TranslateIcon /></Box>
+            <FormControl>
+              <Select value={context.language} onChange={handleLangChange}>
+                <MenuItem value={'zhTW'}>繁體中文</MenuItem>
+                <MenuItem value={'zhCN'}>简体中文</MenuItem>
+                <MenuItem value={'enUS'}>English</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
         </Toolbar>
       </AppBar>
       <main className={classes.layout}>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">
-            {formConfig.formTitle}
+            {intl.get('form.formTitle')}
           </Typography>
           <Stepper activeStep={activeStep} className={classes.stepper}>
-            {steps.map(label => (
-              <Step key={label} /* onClick={() => handleStep(label)} */>
-                <StepLabel>{label}</StepLabel>
+            {steps.map(_step => (
+              <Step key={_step.step} >
+                <StepLabel>{_step.label}</StepLabel>
               </Step>
             ))}
           </Stepper>
           <React.Fragment>
             <React.Fragment>
-              {getStepContent(activeStep, saveResult, formResult)}
+              {getStepContent(activeStep)}
               <div className={classes.buttons}>
-                {/* activeStep !== 0 && (
-                  <Button onClick={handleBack} className={classes.button}>
-                    Back
-                    </Button>
-                ) */}
+
                 <Button
                   variant="contained"
                   color="primary"

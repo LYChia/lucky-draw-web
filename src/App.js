@@ -1,12 +1,21 @@
 import React from 'react';
 import './App.css';
+import { createStateContext } from 'react-use';
 import Checkout from './Pages/Checkout/Checkout';
+
+
+const [useContext, ContextProvider] = createStateContext({
+  language: 'zhTW',
+  formResult: {}
+});
+global.useContext = useContext;
+global.defaultLang = 'zhTW';
 
 function App() {
   return (
-    <div /* className="App" */>
+    <ContextProvider>
       <Checkout />
-    </div>
+    </ContextProvider>
   );
 }
 

@@ -1,5 +1,6 @@
 import _ from "lodash";
 import React from "react";
+import intl from 'react-intl-universal';
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
@@ -11,7 +12,13 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 //import Checkbox from '@material-ui/core/Checkbox';
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
-import questionaire from "../../config/questionaire.json";
+import { questionaireZhtw, questionaireZhcn, questionaireEnus } from "../../config";
+
+const questionaireMapping = {
+  zhTW: questionaireZhtw,
+  zhCN: questionaireZhcn,
+  enUS: questionaireEnus,
+};
 
 function Question(question) {
   const [otherValue, setOtherValue] = React.useState("");
@@ -72,7 +79,7 @@ function Question(question) {
                   placeholder={
                     question.otherPlaceholder
                       ? question.otherPlcaeholder
-                      : "請輸入其他意見"
+                      : intl.get("form.other")
                   }
                   margin="normal"
                   InputLabelProps={{ shrink: true }}
@@ -131,7 +138,7 @@ function Question(question) {
               className={classes.helpText}
               hidden={question.type === "answer"}
             >
-              * 必填
+              * {intl.get('form.required')}
             </FormHelperText>
           )}
         </Grid>
@@ -145,12 +152,21 @@ function Question(question) {
 }
 
 export default function Questionaire(props) {
-  let { formConfig } = global;
-  let { saveResult, formResult, mode } = props;
+  let { mode } = props;
+
+  const [context, setContext] = useContext();
+  let { formResult, saveFormResult } = context;
+
+  const [questionaire, setQuestionaire] = React.useState(questionaireMapping[global.defaultLang]);
+
+  // componentDidUpdate
+  React.useEffect(() => {
+    setQuestionaire(questionaireMapping[context.language]);
+  }, [context.language]);
 
   const isComplete = () => {
     let completeFlag = true;
-    let message = ['尚未填寫'];
+    let message = [intl.get('form.unfinish')];
 
     _.forEach(questionaire, (_question, _key) => {
       if (_question.required) {
@@ -171,13 +187,13 @@ export default function Questionaire(props) {
     formResult.step1IsComplete = completeFlag;
     formResult.step1Message = message;
 
-    saveResult(formResult);
+    saveFormResult(formResult);
   };
 
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom hidden={mode === "answer"}>
-        {formConfig.step1Title}
+        {intl.get('form.step1Title')}
       </Typography>
 
       {_.map(questionaire, (_setting, _key) => (

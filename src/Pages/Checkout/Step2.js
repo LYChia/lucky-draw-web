@@ -1,29 +1,51 @@
 import _ from 'lodash';
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import intl from 'react-intl-universal';
+import GifPlayer from 'react-gif-player';
 import List from '@material-ui/core/List';
+import Paper from "@material-ui/core/Paper";
+import Avatar from '@material-ui/core/Avatar';
+import { red } from '@material-ui/core/colors';
 import ListItem from '@material-ui/core/ListItem';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemText from '@material-ui/core/ListItemText';
-import Avatar from '@material-ui/core/Avatar';
-import Paper from "@material-ui/core/Paper";
-import Typography from '@material-ui/core/Typography';
-import GifPlayer from 'react-gif-player';
-import {
-  LooksOne as LooksOneIcon, LooksTwo as LooksTwoIcon, Looks3 as Looks3Icon,
-  Looks4 as Looks4Icon, Looks5 as Looks5Icon, Looks6 as Looks6Icon,
-} from '@material-ui/icons/';
-import prizeConfig from '../../config/prizeConfig.json';
 
-export default function LuckyDraw(props) {
-  let { saveResult, formResult } = props;
-  let { getPrize, prizes } = formResult;
+const prizeMapping = {
+  zhTW: {
+    levelTitle: 'levelTitleZhtw',
+    prizeName: 'prizeNameZhtw',
+  },
+  zhCN: {
+    levelTitle: 'levelTitleZhcn',
+    prizeName: 'prizeNameZhcn'
+  },
+  enUS: {
+    levelTitle: 'levelTitleEnus',
+    prizeName: 'prizeNameEnus'
+  }
+};
 
+async function fetchUrl(url) {
+  let result = {};
+  try {
+    const response = await fetch(url);
+    result = await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+}
+
+export default function LuckyDraw() {
+  const [prizes, setPrizes] = React.useState([]);
   const [play, setPlay] = React.useState(false);
   const [alreadyDraw, setAlreadyDraw] = React.useState(false);
-  //const [prizes, setPrizes] = React.useState(_.cloneDeep(prizeConfig.prizeList));
-  //const [getPrize, setGetPrize] = React.useState({ prizeName: "" });
+
+  const [context, setContext] = useContext();
+  let { saveFormResult, formResult, language } = context;
 
   const useStyles = makeStyles(theme => ({
     root: {
@@ -39,40 +61,95 @@ export default function LuckyDraw(props) {
     paper: {
       padding: theme.spacing(3, 2),
       backgroundColor: "LavenderBlush"
+    },
+    avatar: {
+      backgroundColor: red[500],
     }
   }));
   const classes = useStyles();
 
+  // componentDidMount
+  React.useEffect(() => {
+    // async function getPrize() {
+    //   setPrizes(await fetchUrl(`https://auo-lt-goldentigertheater.000webhostapp.com/prize.php`));
+    // }
+
+    // getPrize();
+
+    let fakeData = [
+      {
+        "seq": "1",
+        "levelTitleZhtw": "頭獎",
+        "prizeNameZhtw": "威秀電影票",
+        "initCount": "1",
+        "count": "1",
+        "levelTitleEnus": "Jackpot",
+        "prizeNameEnus": "Vision Movie Ticket",
+        "levelTitleZhcn": "头奖",
+        "prizeNameZhcn": "威秀电影票"
+      },
+      {
+        "seq": "2",
+        "levelTitleZhtw": "二獎",
+        "prizeNameZhtw": "法國高腳酒杯",
+        "initCount": "1",
+        "count": "1",
+        "levelTitleEnus": "Second Prize",
+        "prizeNameEnus": "French goblet",
+        "levelTitleZhcn": "二奖",
+        "prizeNameZhcn": "法国高脚酒杯"
+      },
+      {
+        "seq": "3",
+        "levelTitleZhtw": "三獎",
+        "prizeNameZhtw": "711馬克杯",
+        "initCount": "3",
+        "count": "3",
+        "levelTitleEnus": "Third Prize",
+        "prizeNameEnus": "711 Mug",
+        "levelTitleZhcn": "三奖",
+        "prizeNameZhcn": "711马克杯"
+      },
+      {
+        "seq": "4",
+        "levelTitleZhtw": "四獎",
+        "prizeNameZhtw": "小禮物(模型/達達虎集線器/背貼支架/資料夾)",
+        "initCount": "4",
+        "count": "4",
+        "levelTitleEnus": "Fourth Prize",
+        "prizeNameEnus": "Small gift (model/Dada tiger hub/back bracket/folder)",
+        "levelTitleZhcn": "四奖",
+        "prizeNameZhcn": "小礼物(模型/达达虎集线器/背贴支架/资料夹)"
+      },
+      {
+        "seq": "5",
+        "levelTitleZhtw": "參加獎",
+        "prizeNameZhtw": "零食(樂天蛋黃派 / 樂天巧克力派)",
+        "initCount": "28",
+        "count": "28",
+        "levelTitleEnus": "Consolation prize",
+        "prizeNameEnus": "Snacks (Lotte Custard Pie / Lotte Chocolate Pie)",
+        "levelTitleZhcn": "参加奖",
+        "prizeNameZhcn": "零食(乐天蛋黄派 / 乐天巧克力派)"
+      }
+    ];
+    setPrizes(fakeData);
+  }, []);
+
   const renderPrizeList = () => {
     return _.map(prizes, (_prize, _i) => {
-      const renderIcon = () => {
-        switch (_i) {
-          case 0:
-            return <LooksOneIcon />;
-          case 1:
-            return <LooksTwoIcon />;
-          case 2:
-            return <Looks3Icon />;
-          case 3:
-            return <Looks4Icon />;
-          case 4:
-            return <Looks5Icon />;
-          case 5:
-            return <Looks6Icon />;
-          default:
-            return "";
-        }
-      }
       return (
         <ListItem key={_i}>
           <ListItemAvatar>
-            <Avatar style={_i <= 2 ? { backgroundColor: "orange" } : {}}>{renderIcon()}</Avatar>
+            <Avatar style={_i <= 2 ? { backgroundColor: "orange" } : {}}>
+              {/* renderIcon() */_i + 1}
+            </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary={_prize.levelTitle + "　" + _prize.prizeName}
+            primary={_prize[prizeMapping[language]['levelTitle']] + "　" + _prize[prizeMapping[language]['prizeName']]}
           />
           <ListItemSecondaryAction>
-            數量: {_prize.count}
+            {intl.get('prize.count')}: {_prize.count}
           </ListItemSecondaryAction>
         </ListItem>
       );
@@ -81,6 +158,7 @@ export default function LuckyDraw(props) {
 
   const weightedRandom = () => {
     let [totalWeight, randomArray] = _.reduce(prizes, (result, _prize, _index) => {
+      _prize.count = _.toNumber(_prize.count);
       let [_totalWeight, _randomArray] = result;
       _totalWeight = _totalWeight + _prize.count;
       _randomArray = _.concat([], _randomArray, _.times(_prize.count, () => _index));
@@ -94,15 +172,13 @@ export default function LuckyDraw(props) {
 
     prizes[prizeIndex].count = prizes[prizeIndex].count - 1;
 
-    formResult.prizes = prizes;
     formResult.getPrize = _getPrize;
     formResult.step2IsComplete = true;
 
-    saveResult(formResult);
+    saveFormResult(formResult);
   }
 
   const onTogglePlay = () => {
-    //console.log('on toggle play', alreadyDraw);
     setPlay(!play);
     if (play) {
       setAlreadyDraw(true);
@@ -113,7 +189,7 @@ export default function LuckyDraw(props) {
   return (
     <React.Fragment>
       <Typography variant="h6" className={classes.title}>
-        {prizeConfig.listTitle}
+        {intl.get('prize.listTitle')}
       </Typography>
       <div className={classes.demo}>
         <List dense={false}>
@@ -122,7 +198,7 @@ export default function LuckyDraw(props) {
       </div>
       <div id="drawRegion" align="center">
         <Typography variant="h6" className={classes.title} hidden={alreadyDraw}>
-          {prizeConfig.drawBtnText}
+          {play ? intl.get('prize.stopBtnText') : intl.get('prize.drawBtnText')}
         </Typography>
         {!alreadyDraw ?
           <GifPlayer autoplay={false}
@@ -131,7 +207,7 @@ export default function LuckyDraw(props) {
             still={`${process.env.PUBLIC_URL}/still.gif`}
           /> :
           <Paper className={classes.paper}>
-            恭喜您抽中 {getPrize.levelTitle} {getPrize.prizeName}
+            {intl.get('prize.congratulation')} {formResult.getPrize[prizeMapping[language]['levelTitle']]} {formResult.getPrize[prizeMapping[language]['prizeName']]}
           </Paper>
         }
       </div>

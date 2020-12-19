@@ -1,0 +1,50 @@
+{
+    "Q1":{
+        "title":"工號",
+        "type": "textField",
+        "required": true
+    },
+    "Q2":{
+        "title":"您是否喜歡看電影?",
+        "type": "radioGroup",
+        "options": [
+            "是",
+            "否"
+        ],
+        "required": true
+    },
+    "Q3":{
+        "title":"您喜歡哪種類型的電影?",
+        "type": "radioGroup",
+        "enableOther": true,
+        "options": [
+            "動作片",
+            "冒險片",
+            "喜劇片",
+            "劇情片",
+            "恐怖片",
+            "愛情片",
+            "動畫片",
+            "懸疑片"
+        ],
+        "required": true
+    },
+    "Q4":{
+        "title":"您最喜歡的電影是哪一部?",
+        "type": "radioGroup",
+        "enableOther": true,
+        "options": [
+            "天能",
+            "鬼滅之刃劇場版 無限列車篇",
+            "絕地戰警FOR LIFE",
+            "厲陰宅3",
+            "花木蘭真人版"
+        ],
+        "required": true
+    },
+    "Q5":{
+        "title":"是否有給電影社的意見?",
+        "type": "textareaAutosize",
+        "required": false
+    }
+}

@@ -1,0 +1,50 @@
+{
+    "Q1":{
+        "title":"工号",
+        "type": "textField",
+        "required": true
+    },
+    "Q2":{
+        "title":"您是否喜欢看电影?",
+        "type": "radioGroup",
+        "options": [
+            "是",
+            "否"
+        ],
+        "required": true
+    },
+    "Q3":{
+        "title":"您喜欢哪种类型的电影?",
+        "type": "radioGroup",
+        "enableOther": true,
+        "options": [
+            "动作片",
+            "冒险片",
+            "喜剧片",
+            "剧情片",
+            "恐怖片",
+            "爱情片",
+            "动画片",
+            "悬疑片"
+        ],
+        "required": true
+    },
+    "Q4":{
+        "title":"您最喜欢的电影是哪一部?",
+        "type": "radioGroup",
+        "enableOther": true,
+        "options": [
+            "天能",
+            "鬼灭之刃剧场版 无限列车篇",
+            "绝地战警FOR LIFE",
+            "厉阴宅3",
+            "花木兰真人版"
+        ],
+        "required": true
+    },
+    "Q5":{
+        "title":"是否有给电影社的意见?",
+        "type": "textareaAutosize",
+        "required": false
+    }
+}

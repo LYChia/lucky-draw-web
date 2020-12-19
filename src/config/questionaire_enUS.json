@@ -1,0 +1,50 @@
+{
+    "Q1":{
+        "title":"Employee ID",
+        "type": "textField",
+        "required": true
+    },
+    "Q2":{
+        "title":"Do you like watching movies?",
+        "type": "radioGroup",
+        "options": [
+            "Yes",
+            "no"
+        ],
+        "required": true
+    },
+    "Q3":{
+        "title":"Which type of movie do you like?",
+        "type": "radioGroup",
+        "enableOther": true,
+        "options": [
+            "Action movie",
+            "Adventure Film",
+            "Comedy",
+            "Drama",
+            "Horror film",
+            "Romance Film",
+            "Cartoon",
+            "Suspense Film"
+        ],
+        "required": true
+    },
+    "Q4":{
+        "title":"Which movie is your favorite?",
+        "type": "radioGroup",
+        "enableOther": true,
+        "options": [
+            "Tenet",
+            "Demon Slayer: Kimetsu no Yaiba the Movie: Mugen Train",
+            "Bad Boys for Life",
+            "The Conjuring 3 : The Devil Made Me Do It",
+            "Mulan 2020"
+        ],
+        "required": true
+    },
+    "Q5":{
+        "title":"Do you have any advice for Golden Tiger Cinema Club?",
+        "type": "textareaAutosize",
+        "required": false
+    }
+}

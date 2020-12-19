@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import intl from 'react-intl-universal';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Paper from "@material-ui/core/Paper";
@@ -24,8 +25,24 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function Review(props) {
-  let { formResult, saveResult } = props;
+const prizeMapping = {
+  zhTW: {
+    levelTitle: 'levelTitleZhtw',
+    prizeName: 'prizeNameZhtw',
+  },
+  zhCN: {
+    levelTitle: 'levelTitleZhcn',
+    prizeName: 'prizeNameZhcn'
+  },
+  enUS: {
+    levelTitle: 'levelTitleEnus',
+    prizeName: 'prizeNameEnus'
+  }
+};
+
+export default function Review() {
+  const [context, setContext] = useContext();
+  let { saveFormResult, formResult, language } = context;
   let { getPrize } = formResult;
   const classes = useStyles();
 
@@ -33,29 +50,29 @@ export default function Review(props) {
     <React.Fragment>
       <div className={classes.region}>
         <Typography variant="h5" gutterBottom>
-          感謝您的參與
+          {intl.get('review.thank')}
         </Typography>
         <Typography variant="subtitle1">
-          我們重視每個人的意見
+          {intl.get('review.value')}
         </Typography>
       </div>
 
       {!_.isEmpty(getPrize) &&
         <div className={classes.region}>
           <Typography variant="h6" gutterBottom>
-            抽獎結果
+            {intl.get('review.drawResult')}
           </Typography>
           <Paper className={classes.paper} >
-            恭喜您抽中 {getPrize.levelTitle} {getPrize.prizeName}
+            {intl.get('review.congrat')} {getPrize[prizeMapping[language]['levelTitle']]} {getPrize[prizeMapping[language]['prizeName']]}
           </Paper>
         </div>
       }
-      
+
       <div className={classes.region}>
         <Typography variant="h6" gutterBottom>
-          問卷結果
+          {intl.get('review.questResult')}
         </Typography>
-        <Step1 saveResult={saveResult} formResult={formResult} mode="answer" />
+        <Step1 saveFormResult={saveFormResult} formResult={formResult} mode="answer" />
       </div>
     </React.Fragment>
   );

@@ -4,7 +4,6 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-global.formConfig = require('./config/formConfig.json');
 global.serverConfig = require('./config/serverConfig.json');
 
 ReactDOM.render(<App />, document.getElementById('root'));
