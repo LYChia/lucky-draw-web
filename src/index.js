@@ -4,7 +4,12 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-global.serverConfig = require('./config/serverConfig.json');
+import loadLocales from './locales';
+const serverConfig = require('./config/serverConfig.json');
+global.webUrl = serverConfig.webUrl;
+global.apiUrl = serverConfig.apiUrl;
+
+loadLocales();
 
 ReactDOM.render(<App />, document.getElementById('root'));
 

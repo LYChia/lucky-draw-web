@@ -28,7 +28,7 @@ function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {"Copyright © "}
-      <Link color="inherit" href={global.serverConfig.clubUrl}>
+      <Link color="inherit" href={global.webUrl}>
         {intl.get('form.copyRight')}
       </Link>{" "}
       {new Date().getFullYear()}
@@ -142,12 +142,23 @@ export default function Checkout() {
     setContext(prevContext => { return { ...prevContext, saveFormResult } });
   }, []);
 
+  // const resetPages = () => {
+  //   setContext(prevContext => ({ ...prevContext, formResult: {} }));
+  // };
 
   const canGoNext = () => {
     let completeFlag = formResult[`step${activeStep + 1}IsComplete`];
-    let message = _.concat([], formResult[`step${activeStep + 1}Message`], intl.get('alert.plzComple'));
-    console.log('completeFlag', completeFlag, 'message', message);
+
+    let message = [];
+    console.log('completeFlag', completeFlag, 'message', message, 'formResult', formResult);
+    if (formResult.duplicatedEmp) {
+      message = _.concat([], formResult[`step${activeStep + 1}Message`]);
+      setDialog({ title: intl.get('alert.unfinished'), content: _.join(message, "\n") });
+      dialogRef.handleToggle("open");
+      return false;
+    }
     if (!completeFlag || !_.isBoolean(completeFlag)) {
+      message = _.concat([], formResult[`step${activeStep + 1}Message`], intl.get('alert.plzComple'));
       setDialog({ title: intl.get('alert.unfinished'), content: _.join(message, "\n") });
       dialogRef.handleToggle("open");
       return false;
@@ -157,21 +168,25 @@ export default function Checkout() {
   };
 
   const handleNext = () => {
+    console.log('handleNext', 'formResult', formResult);
 
-    console.log('handleNext');
-    if (activeStep < 2) {
-      let goNextFlag = canGoNext();
-      if (goNextFlag) {
-        setActiveStep(activeStep + 1);
-      }
-    } else {
-      setActiveStep(0);
-      resetPages();
+    let goNextFlag;
+    switch (activeStep) {
+      case 0:
+      case 1:
+        goNextFlag = canGoNext();
+        if (goNextFlag) {
+          setActiveStep(activeStep + 1);
+        }
+        break;
+      case 2:
+        setActiveStep(0);
+        // resetPages();
+        location.reload();
+        break;
+      default:
+        break;
     }
-  };
-
-  const resetPages = () => {
-    setContext(prevContext => ({ ...prevContext, formResult: {} }));
   };
 
   const handleLangChange = (event) => {

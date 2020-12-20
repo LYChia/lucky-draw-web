@@ -2,6 +2,8 @@ import _ from "lodash";
 import React from "react";
 import intl from 'react-intl-universal';
 import Grid from "@material-ui/core/Grid";
+import Radio from "@material-ui/core/Radio";
+import RadioGroup from "@material-ui/core/RadioGroup";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
@@ -9,9 +11,8 @@ import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-//import Checkbox from '@material-ui/core/Checkbox';
-import Radio from "@material-ui/core/Radio";
-import RadioGroup from "@material-ui/core/RadioGroup";
+
+import fetchUrl from "../../module/fetch";
 import { questionaireZhtw, questionaireZhcn, questionaireEnus } from "../../config";
 
 const questionaireMapping = {
@@ -46,7 +47,7 @@ function Question(question) {
             fullWidth
             margin="normal"
             InputLabelProps={{ shrink: true }}
-            value={question.answer[question.index]}
+            value={question.answer[question.index] || ""}
             onChange={e => {
               question.updateAnswer(question.index, e.target.value);
             }}
@@ -58,7 +59,7 @@ function Question(question) {
           <RadioGroup
             aria-label={_.head(options)}
             name="customized-radios"
-            value={question.answer[question.index]}
+            value={question.answer[question.index] || {}}
             onChange={e => {
               question.updateAnswer(question.index, e.target.value);
             }}
@@ -100,7 +101,7 @@ function Question(question) {
             margin="normal"
             InputLabelProps={{ shrink: true }}
             multiline
-            value={question.answer[question.index]}
+            value={question.answer[question.index] || ""}
             onChange={e => {
               question.updateAnswer(question.index, e.target.value);
             }}
@@ -110,7 +111,7 @@ function Question(question) {
         console.log("answer", question.answer[question.index]);
         return (
           <FormLabel component="legend" style={{ fontWeight: "bold" }}>
-            {question.answer[question.index]}
+            {question.answer[question.index] || ""}
           </FormLabel>
         );
       default:
@@ -154,7 +155,7 @@ function Question(question) {
 export default function Questionaire(props) {
   let { mode } = props;
 
-  const [context, setContext] = useContext();
+  const [context, setContext] = global.useContext();
   let { formResult, saveFormResult } = context;
 
   const [questionaire, setQuestionaire] = React.useState(questionaireMapping[global.defaultLang]);
@@ -183,10 +184,25 @@ export default function Questionaire(props) {
   const updateAnswer = (key, _answer) => {
     formResult[key] = _answer;
 
-    let { completeFlag, message } = isComplete();
-    formResult.step1IsComplete = completeFlag;
-    formResult.step1Message = message;
+    if (key === 'Q1') {
+      async function checkEmployeeRepeat() {
+        let empForm = await fetchUrl({ url: `${global.apiUrl}/questionaire/param={"employeeId":"${formResult[key]}"}` });
+        if (_.isArray(empForm) && _.some(empForm, { employeeId: formResult[key] })) {
+          formResult.step1IsComplete = false;
+          formResult.step1Message = intl.get('form.duplicatedEmp');
+          formResult.duplicatedEmp = true;
+        }else{
+          formResult.duplicatedEmp = false;
+        }
+      }
+      checkEmployeeRepeat();
+    }
 
+    if (!formResult.duplicatedEmp) {
+      let { completeFlag, message } = isComplete();
+      formResult.step1IsComplete = completeFlag;
+      formResult.step1Message = message;
+    }
     saveFormResult(formResult);
   };
 

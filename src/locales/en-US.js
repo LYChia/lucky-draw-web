@@ -13,7 +13,8 @@ export default {
         step3Title: "Confirm result",
         unfinish: "Not yet filled",
         required: "required",
-        other: "Please input other advice"
+        other: "Please input other advice",
+        duplicatedEmp: "You have already filled out the questionnaire before!"
     },
     prize: {
         listTitle: "Prize List",

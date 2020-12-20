@@ -13,7 +13,8 @@ export default {
         step3Title: "确认结果",
         unfinish: "尚未填写",
         required: "必填",
-        other: "请输入其他意见"
+        other: "请输入其他意见",
+        duplicatedEmp: "您已填写过问卷!"
     },
     prize: {
         listTitle: "活动奖品",

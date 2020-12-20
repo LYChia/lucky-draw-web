@@ -13,6 +13,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 
+import fetchUrl from '../../module/fetch';
+
 const prizeMapping = {
   zhTW: {
     levelTitle: 'levelTitleZhtw',
@@ -28,24 +30,16 @@ const prizeMapping = {
   }
 };
 
-async function fetchUrl(url) {
-  let result = {};
-  try {
-    const response = await fetch(url);
-    result = await response.json();
-  } catch (e) {
-    console.error(e);
-  }
-  return result;
-}
-
 export default function LuckyDraw() {
-  const [prizes, setPrizes] = React.useState([]);
   const [play, setPlay] = React.useState(false);
   const [alreadyDraw, setAlreadyDraw] = React.useState(false);
 
   const [context, setContext] = useContext();
-  let { saveFormResult, formResult, language } = context;
+  let { saveFormResult, formResult, language, prizes } = context;
+
+  const setPrizes = (value) => {
+    setContext(prevContext => { return { ...prevContext, prizes: value } });
+  }
 
   const useStyles = makeStyles(theme => ({
     root: {
@@ -70,71 +64,75 @@ export default function LuckyDraw() {
 
   // componentDidMount
   React.useEffect(() => {
-    // async function getPrize() {
-    //   setPrizes(await fetchUrl(`https://auo-lt-goldentigertheater.000webhostapp.com/prize.php`));
-    // }
+    async function getPrize() {
+      setPrizes(await fetchUrl({ url: `${global.apiUrl}/prize` }));
+    }
 
-    // getPrize();
+    getPrize();
 
-    let fakeData = [
-      {
-        "seq": "1",
-        "levelTitleZhtw": "頭獎",
-        "prizeNameZhtw": "威秀電影票",
-        "initCount": "1",
-        "count": "1",
-        "levelTitleEnus": "Jackpot",
-        "prizeNameEnus": "Vision Movie Ticket",
-        "levelTitleZhcn": "头奖",
-        "prizeNameZhcn": "威秀电影票"
-      },
-      {
-        "seq": "2",
-        "levelTitleZhtw": "二獎",
-        "prizeNameZhtw": "法國高腳酒杯",
-        "initCount": "1",
-        "count": "1",
-        "levelTitleEnus": "Second Prize",
-        "prizeNameEnus": "French goblet",
-        "levelTitleZhcn": "二奖",
-        "prizeNameZhcn": "法国高脚酒杯"
-      },
-      {
-        "seq": "3",
-        "levelTitleZhtw": "三獎",
-        "prizeNameZhtw": "711馬克杯",
-        "initCount": "3",
-        "count": "3",
-        "levelTitleEnus": "Third Prize",
-        "prizeNameEnus": "711 Mug",
-        "levelTitleZhcn": "三奖",
-        "prizeNameZhcn": "711马克杯"
-      },
-      {
-        "seq": "4",
-        "levelTitleZhtw": "四獎",
-        "prizeNameZhtw": "小禮物(模型/達達虎集線器/背貼支架/資料夾)",
-        "initCount": "4",
-        "count": "4",
-        "levelTitleEnus": "Fourth Prize",
-        "prizeNameEnus": "Small gift (model/Dada tiger hub/back bracket/folder)",
-        "levelTitleZhcn": "四奖",
-        "prizeNameZhcn": "小礼物(模型/达达虎集线器/背贴支架/资料夹)"
-      },
-      {
-        "seq": "5",
-        "levelTitleZhtw": "參加獎",
-        "prizeNameZhtw": "零食(樂天蛋黃派 / 樂天巧克力派)",
-        "initCount": "28",
-        "count": "28",
-        "levelTitleEnus": "Consolation prize",
-        "prizeNameEnus": "Snacks (Lotte Custard Pie / Lotte Chocolate Pie)",
-        "levelTitleZhcn": "参加奖",
-        "prizeNameZhcn": "零食(乐天蛋黄派 / 乐天巧克力派)"
-      }
-    ];
-    setPrizes(fakeData);
+    //#region for test
+    // let fakeData = [
+    //   {
+    //     "seq": "1",
+    //     "levelTitleZhtw": "頭獎",
+    //     "prizeNameZhtw": "威秀電影票",
+    //     "initCount": "1",
+    //     "count": "1",
+    //     "levelTitleEnus": "Jackpot",
+    //     "prizeNameEnus": "Vision Movie Ticket",
+    //     "levelTitleZhcn": "头奖",
+    //     "prizeNameZhcn": "威秀电影票"
+    //   },
+    //   {
+    //     "seq": "2",
+    //     "levelTitleZhtw": "二獎",
+    //     "prizeNameZhtw": "法國高腳酒杯",
+    //     "initCount": "1",
+    //     "count": "1",
+    //     "levelTitleEnus": "Second Prize",
+    //     "prizeNameEnus": "French goblet",
+    //     "levelTitleZhcn": "二奖",
+    //     "prizeNameZhcn": "法国高脚酒杯"
+    //   },
+    //   {
+    //     "seq": "3",
+    //     "levelTitleZhtw": "三獎",
+    //     "prizeNameZhtw": "711馬克杯",
+    //     "initCount": "3",
+    //     "count": "3",
+    //     "levelTitleEnus": "Third Prize",
+    //     "prizeNameEnus": "711 Mug",
+    //     "levelTitleZhcn": "三奖",
+    //     "prizeNameZhcn": "711马克杯"
+    //   },
+    //   {
+    //     "seq": "4",
+    //     "levelTitleZhtw": "四獎",
+    //     "prizeNameZhtw": "小禮物(模型/達達虎集線器/背貼支架/資料夾)",
+    //     "initCount": "4",
+    //     "count": "4",
+    //     "levelTitleEnus": "Fourth Prize",
+    //     "prizeNameEnus": "Small gift (model/Dada tiger hub/back bracket/folder)",
+    //     "levelTitleZhcn": "四奖",
+    //     "prizeNameZhcn": "小礼物(模型/达达虎集线器/背贴支架/资料夹)"
+    //   },
+    //   {
+    //     "seq": "5",
+    //     "levelTitleZhtw": "參加獎",
+    //     "prizeNameZhtw": "零食(樂天蛋黃派 / 樂天巧克力派)",
+    //     "initCount": "28",
+    //     "count": "28",
+    //     "levelTitleEnus": "Consolation prize",
+    //     "prizeNameEnus": "Snacks (Lotte Custard Pie / Lotte Chocolate Pie)",
+    //     "levelTitleZhcn": "参加奖",
+    //     "prizeNameZhcn": "零食(乐天蛋黄派 / 乐天巧克力派)"
+    //   }
+    // ];
+    // setPrizes(fakeData);
+    //#endregion
   }, []);
+
+
 
   const renderPrizeList = () => {
     return _.map(prizes, (_prize, _i) => {
@@ -170,12 +168,30 @@ export default function LuckyDraw() {
     let _getPrize = prizes[prizeIndex];
     console.log(totalWeight, randomArray, randomNumber, prizeIndex, _getPrize);
 
-    prizes[prizeIndex].count = prizes[prizeIndex].count - 1;
-
     formResult.getPrize = _getPrize;
     formResult.step2IsComplete = true;
 
     saveFormResult(formResult);
+
+    async function saveDB() {
+      console.log('formResult', formResult);
+
+      let _prizes = await fetchUrl({ url: `${global.apiUrl}/updatePrizeCount.php?seq=${formResult.getPrize.seq}` });
+      setContext(prevContext => { return { ...prevContext, prizes: _prizes } });
+
+      await fetchUrl({
+        url: `${global.apiUrl}/questionaire`, method: 'POST', data: {
+          employeeId: formResult.Q1,
+          ifLikeMovies: formResult.Q2,
+          movieType: formResult.Q3,
+          favoriteMovie: formResult.Q4,
+          advice: formResult.Q5 || "",
+          prizeSeq: formResult.getPrize.seq
+        }
+      });
+    }
+
+    saveDB();
   }
 
   const onTogglePlay = () => {

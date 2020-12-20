@@ -13,7 +13,8 @@ export default {
         step3Title: "確認結果",
         unfinish: "尚未填寫",
         required: "必填",
-        other: "請輸入其他意見"
+        other: "請輸入其他意見",
+        duplicatedEmp: "您已填寫過問卷!"
     },
     prize: {
         listTitle: "活動獎品",
